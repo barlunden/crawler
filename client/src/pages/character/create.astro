@@ -1,0 +1,29 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import CharacterCreator from '../../components/CharacterCreator';
+import '../../styles/global.css';
+---
+
+<BaseLayout>
+  <main class="min-h-screen bg-background">
+    <div class="container mx-auto px-4 py-8">
+      <div class="mb-4">
+        <a href="/" class="text-text-muted hover:text-secondary transition-colors inline-flex items-center gap-2">
+          <span>←</span>
+          <span>Back to Main Menu</span>
+        </a>
+      </div>
+      
+      <header class="text-center mb-8">
+        <h1 class="text-4xl font-bold text-secondary mb-2">
+          Create Your Character
+        </h1>
+        <p class="text-text-muted">
+          Choose your race, class, and forge your destiny
+        </p>
+      </header>
+
+      <CharacterCreator client:load />
+    </div>
+  </main>
+</BaseLayout>

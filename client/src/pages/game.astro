@@ -1,0 +1,11 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import GameInterface from '../components/GameInterface';
+import '../styles/global.css';
+---
+
+<BaseLayout>
+  <main class="min-h-screen bg-background">
+    <GameInterface client:load />
+  </main>
+</BaseLayout>

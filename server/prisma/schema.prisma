@@ -1,0 +1,437 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================================
+// CHARACTER / PLAYER
+// ============================================================================
+
+model Character {
+  id        String   @id @default(uuid())
+  name      String
+  race      String   // HUMAN, DWARF, ELF, HALFLING
+  class     String   // WARRIOR, ROGUE, MAGE, CLERIC, RANGER
+  level     Int      @default(1)
+  experience Int     @default(0)
+  availableSkillPoints Int @default(0)
+  
+  // Resources
+  health     Int     @default(100)
+  maxHealth  Int     @default(100)
+  mana       Int     @default(50)
+  maxMana    Int     @default(50)
+  gold       Int     @default(100)
+  
+  // Stats (WFRP-inspired)
+  weaponSkill    Int  @default(20)
+  ballisticSkill Int  @default(20)
+  strength       Int  @default(20)
+  toughness      Int  @default(20)
+  initiative     Int  @default(20)
+  agility        Int  @default(20)
+  dexterity      Int  @default(20)
+  intelligence   Int  @default(20)
+  willpower      Int  @default(20)
+  fellowship     Int  @default(20)
+  
+  // Skill progression tracking (for use-based advancement)
+  weaponSkillUses    Int @default(0)
+  ballisticSkillUses Int @default(0)
+  strengthUses       Int @default(0)
+  toughnessUses      Int @default(0)
+  initiativeUses     Int @default(0)
+  agilityUses        Int @default(0)
+  dexterityUses      Int @default(0)
+  intelligenceUses   Int @default(0)
+  willpowerUses      Int @default(0)
+  fellowshipUses     Int @default(0)
+  
+  // Combat Skills - Melee
+  swordSkill          Int @default(0)
+  twoHandedSwordSkill Int @default(0)
+  axeSkill            Int @default(0)
+  twoHandedAxeSkill   Int @default(0)
+  daggerSkill         Int @default(0)
+  spearSkill          Int @default(0)
+  maceSkill           Int @default(0)
+  
+  // Combat Skills - Ranged
+  bowSkill       Int @default(0)
+  crossbowSkill  Int @default(0)
+  slingSkill     Int @default(0)
+  throwingSkill  Int @default(0)
+  
+  // Magic Skills
+  fireMagicSkill      Int @default(0)
+  iceMagicSkill       Int @default(0)
+  lightningMagicSkill Int @default(0)
+  healingMagicSkill   Int @default(0)
+  darkMagicSkill      Int @default(0)
+  lightMagicSkill     Int @default(0)
+  natureMagicSkill    Int @default(0)
+  
+  // Defense & Utility Skills
+  dodgeSkill      Int @default(0)
+  blockSkill      Int @default(0)
+  parrySkill      Int @default(0)
+  lockpickingSkill Int @default(0)
+  stealthSkill    Int @default(0)
+  perceptionSkill Int @default(0)
+  
+  // Relations
+  inventory       Inventory?
+  equippedWeapon  Item?          @relation("EquippedWeapon", fields: [equippedWeaponId], references: [id])
+  equippedWeaponId String?
+  equippedArmor   Item[]         @relation("EquippedArmor")
+  knownSpells     CharacterSpell[]
+  dungeons        Dungeon[]
+  combats         Combat[]
+  
+  // Current position
+  currentDungeonId String?
+  currentRoomX     Int?
+  currentRoomY     Int?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([name])
+}
+
+// ============================================================================
+// INVENTORY
+// ============================================================================
+
+model Inventory {
+  id          String          @id @default(uuid())
+  characterId String          @unique
+  character   Character       @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  maxSlots    Int             @default(20)
+  items       InventoryItem[]
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+}
+
+model InventoryItem {
+  id          String    @id @default(uuid())
+  inventoryId String
+  inventory   Inventory @relation(fields: [inventoryId], references: [id], onDelete: Cascade)
+  itemId      String
+  item        Item      @relation(fields: [itemId], references: [id])
+  quantity    Int       @default(1)
+  isEquipped  Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  
+  @@index([inventoryId])
+  @@index([itemId])
+}
+
+// ============================================================================
+// ITEMS
+// ============================================================================
+
+model Item {
+  id          String   @id @default(uuid())
+  name        String
+  description String
+  type        String   // WEAPON, ARMOR, POTION, SCROLL, ACCESSORY, MISC
+  rarity      String   // COMMON, UNCOMMON, RARE, EPIC, LEGENDARY
+  value       Int      // Gold value
+  
+  // Weapon properties
+  weaponType  String?  // MELEE, RANGED, MAGIC
+  damage      Int?
+  
+  // Armor properties
+  armorSlot   String?  // HEAD, CHEST, LEGS, HANDS, FEET
+  armorValue  Int?
+  
+  // Stat modifiers (stored as JSON)
+  weaponSkillMod    Int @default(0)
+  ballisticSkillMod Int @default(0)
+  strengthMod       Int @default(0)
+  toughnessMod      Int @default(0)
+  initiativeMod     Int @default(0)
+  agilityMod        Int @default(0)
+  dexterityMod      Int @default(0)
+  intelligenceMod   Int @default(0)
+  willpowerMod      Int @default(0)
+  fellowshipMod     Int @default(0)
+  
+  // Consumable effects
+  healthRestore Int?
+  manaRestore   Int?
+  
+  // Stacking
+  isStackable  Boolean @default(false)
+  maxStackSize Int?
+  
+  // Relations
+  inventoryItems      InventoryItem[]
+  equippedByCharacter Character[]     @relation("EquippedWeapon")
+  equippedAsArmor     Character[]     @relation("EquippedArmor")
+  enemyLoot           EnemyLoot[]
+  
+  createdAt DateTime @default(now())
+  
+  @@index([type])
+  @@index([rarity])
+}
+
+// ============================================================================
+// SPELLS
+// ============================================================================
+
+model Spell {
+  id                   String           @id @default(uuid())
+  name                 String
+  description          String
+  school               String           // FIRE, ICE, LIGHTNING, HEALING, DARK, LIGHT, NATURE
+  manaCost             Int
+  damage               Int?
+  healing              Int?
+  requiredIntelligence Int
+  effectDescription    String
+  
+  // Relations
+  knownByCharacters CharacterSpell[]
+  
+  createdAt DateTime @default(now())
+  
+  @@index([school])
+}
+
+model CharacterSpell {
+  id          String    @id @default(uuid())
+  characterId String
+  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  spellId     String
+  spell       Spell     @relation(fields: [spellId], references: [id])
+  learnedAt   DateTime  @default(now())
+  
+  @@unique([characterId, spellId])
+  @@index([characterId])
+}
+
+// ============================================================================
+// DUNGEON
+// ============================================================================
+
+model Dungeon {
+  id          String   @id @default(uuid())
+  name        String
+  level       Int      @default(1)  // Depth level (1 = first floor, higher = deeper)
+  difficulty  Int      @default(1)  // Scales with level
+  width       Int
+  height      Int
+  characterId String
+  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  rooms       DungeonRoom[]
+  combats     Combat[]
+  createdAt   DateTime @default(now())
+  
+  @@index([characterId])
+  @@index([level])
+}
+
+model DungeonRoom {
+  id         String   @id @default(uuid())
+  dungeonId  String
+  dungeon    Dungeon  @relation(fields: [dungeonId], references: [id], onDelete: Cascade)
+  x          Int
+  y          Int
+  type       String   // EMPTY, COMBAT, TREASURE, MERCHANT, BOSS, ENTRANCE, EXIT, TRAP, CORRIDOR
+  isExplored Boolean  @default(false)
+  isVisible  Boolean  @default(false)
+  
+  // Walls (true = wall/blocked, false = open passage)
+  hasNorthWall Boolean @default(true)
+  hasSouthWall Boolean @default(true)
+  hasEastWall  Boolean @default(true)
+  hasWestWall  Boolean @default(true)
+  
+  // Room content (stored as JSON in a more complex implementation)
+  enemyIds    String?  // Comma-separated IDs
+  treasureIds String?  // Comma-separated IDs
+  merchantId  String?
+  
+  createdAt DateTime @default(now())
+  
+  @@unique([dungeonId, x, y])
+  @@index([dungeonId])
+}
+
+// ============================================================================
+// ENEMIES
+// ============================================================================
+
+model Enemy {
+  id          String      @id @default(uuid())
+  name        String
+  description String
+  level       Int
+  
+  // Stats
+  weaponSkill    Int
+  ballisticSkill Int
+  strength       Int
+  toughness      Int
+  initiative     Int
+  agility        Int
+  dexterity      Int
+  intelligence   Int
+  willpower      Int
+  fellowship     Int
+  
+  // Resources
+  health           Int
+  maxHealth        Int
+  mana             Int
+  maxMana          Int
+  experienceReward Int
+  goldReward       Int
+  
+  // Relations
+  possibleLoot EnemyLoot[]
+  combats      CombatEnemy[]
+  
+  createdAt DateTime @default(now())
+  
+  @@index([level])
+}
+
+model EnemyLoot {
+  id        String   @id @default(uuid())
+  enemyId   String
+  enemy     Enemy    @relation(fields: [enemyId], references: [id], onDelete: Cascade)
+  itemId    String
+  item      Item     @relation(fields: [itemId], references: [id])
+  dropChance Float   // 0.0 to 1.0
+  
+  @@index([enemyId])
+}
+
+// ============================================================================
+// COMBAT
+// ============================================================================
+
+model Combat {
+  id               String        @id @default(uuid())
+  dungeonId        String
+  dungeon          Dungeon       @relation(fields: [dungeonId], references: [id], onDelete: Cascade)
+  characterId      String
+  character        Character     @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  isActive         Boolean       @default(true)
+  roundNumber      Int           @default(1)
+  currentTurnIndex Int           @default(0)
+  turnOrder        String        // JSON array of IDs in initiative order
+  
+  // Relations
+  enemies   CombatEnemy[]
+  actions   CombatAction[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([characterId])
+  @@index([dungeonId])
+}
+
+model CombatEnemy {
+  id             String  @id @default(uuid())
+  combatId       String
+  combat         Combat  @relation(fields: [combatId], references: [id], onDelete: Cascade)
+  enemyId        String
+  enemy          Enemy   @relation(fields: [enemyId], references: [id])
+  currentHealth  Int
+  currentMana    Int
+  isDefeated     Boolean @default(false)
+  
+  @@index([combatId])
+}
+
+model CombatAction {
+  id        String   @id @default(uuid())
+  combatId  String
+  combat    Combat   @relation(fields: [combatId], references: [id], onDelete: Cascade)
+  roundNumber Int
+  actorId   String   // Character or Enemy ID
+  targetId  String?  // Target of the action
+  actionType String  // ATTACK, DEFEND, CAST_SPELL, USE_ITEM, FLEE
+  spellId   String?
+  itemId    String?
+  damage    Int?
+  healing   Int?
+  success   Boolean
+  description String
+  createdAt DateTime @default(now())
+  
+  @@index([combatId])
+}
+
+// ============================================================================
+// VILLAGE
+// ============================================================================
+
+model Village {
+  id        String   @id @default(uuid())
+  name      String   @default("The Village")
+  
+  // Character ownership - each character has their own village
+  characterId String   @unique
+  
+  // Available services (selected during village creation)
+  hasWeaponSmith      Boolean @default(false)
+  hasArmorSmith       Boolean @default(false)
+  hasPotionShop       Boolean @default(false)
+  hasTavern           Boolean @default(false)
+  hasGeneralMerchant  Boolean @default(false)
+  hasTemple           Boolean @default(false)
+  hasBlacksmith       Boolean @default(false)
+  hasEnchanter        Boolean @default(false)
+  hasAlchemist        Boolean @default(false)
+  hasTrainingGround   Boolean @default(false)
+  
+  // Random events mode settings
+  randomEventsEnabled Boolean @default(false)
+  eventDifficulty     String  @default("REALISTIC") // RELIABLE, REALISTIC, CHAOTIC
+  
+  // Current availability status (for random events)
+  weaponSmithAvailable      Boolean @default(true)
+  armorSmithAvailable       Boolean @default(true)
+  potionShopAvailable       Boolean @default(true)
+  tavernAvailable           Boolean @default(true)
+  generalMerchantAvailable  Boolean @default(true)
+  templeAvailable           Boolean @default(true)
+  blacksmithAvailable       Boolean @default(true)
+  enchanterAvailable        Boolean @default(true)
+  alchemistAvailable        Boolean @default(true)
+  trainingGroundAvailable   Boolean @default(true)
+  
+  // Event flavor text (what excuse for being closed)
+  weaponSmithReason      String?
+  armorSmithReason       String?
+  potionShopReason       String?
+  tavernReason           String?
+  generalMerchantReason  String?
+  templeReason           String?
+  blacksmithReason       String?
+  enchanterReason        String?
+  alchemistReason        String?
+  trainingGroundReason   String?
+  
+  lastEventRoll DateTime?  // When we last rolled for random events
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([characterId])
+}

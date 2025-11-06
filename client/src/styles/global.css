@@ -1,0 +1,75 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #8b0000;
+  --color-primary-light: #a52a2a;
+  --color-primary-dark: #5c0000;
+  --color-secondary: #d4af37;
+  --color-secondary-light: #f4cf57;
+  --color-secondary-dark: #b48f17;
+  --color-accent: #2c1810;
+  --color-accent-light: #4a2818;
+  --color-background: #1a1a1a;
+  --color-surface: #2a2a2a;
+  --color-surface-light: #3a3a3a;
+  --color-text: #e0e0e0;
+  --color-text-muted: #a0a0a0;
+  --color-health: #dc2626;
+  --color-mana: #3b82f6;
+  --color-experience: #8b5cf6;
+  --color-gold: #eab308;
+  --color-common: #9ca3af;
+  --color-uncommon: #22c55e;
+  --color-rare: #3b82f6;
+  --color-epic: #a855f7;
+  --color-legendary: #f97316;
+  --font-family-heading: 'Cinzel', serif;
+  --font-family-body: 'Lato', sans-serif;
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-text);
+  font-family: var(--font-family-body);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-family-heading);
+  color: var(--color-text);
+}
+
+.btn-primary {
+  padding: 0.5rem 1rem;
+  background-color: var(--color-primary);
+  color: white;
+  font-weight: 600;
+  border-radius: 0.5rem;
+  transition: background-color 0.2s;
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+}
+
+.btn-primary:hover {
+  background-color: var(--color-primary-light);
+}
+
+.btn-secondary {
+  padding: 0.5rem 1rem;
+  background-color: var(--color-secondary);
+  color: var(--color-accent);
+  font-weight: 600;
+  border-radius: 0.5rem;
+  transition: background-color 0.2s;
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+}
+
+.btn-secondary:hover {
+  background-color: var(--color-secondary-light);
+}
+
+.card {
+  background-color: var(--color-surface);
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+  border: 1px solid var(--color-surface-light);
+}

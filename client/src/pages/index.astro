@@ -1,0 +1,76 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import '../styles/global.css';
+---
+
+<BaseLayout>
+  <main class="min-h-screen bg-background">
+    <div class="container mx-auto px-4 py-8">
+      <header class="text-center mb-12">
+        <h1 class="text-5xl font-bold text-secondary mb-4">
+          Dungeon Crawler
+        </h1>
+        <p class="text-xl text-text-muted">
+          A Warhammer-Inspired RPG Adventure
+        </p>
+      </header>
+
+      <div class="max-w-4xl mx-auto">
+        <div class="card text-center space-y-6">
+          <h2 class="text-3xl font-semibold text-secondary">
+            Welcome, Adventurer
+          </h2>
+          
+          <p class="text-lg text-text-muted">
+            Prepare yourself for a journey through dark dungeons, fierce combat, 
+            and untold treasures. Will you survive the depths?
+          </p>
+
+          <div class="flex gap-4 justify-center mt-8">
+            <a href="/game" class="btn-primary">
+              Continue Game
+            </a>
+            <a href="/character/create" class="btn-secondary">
+              Create New Character
+            </a>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-12 text-left">
+            <div class="bg-accent rounded-lg p-6">
+              <h3 class="text-xl font-semibold text-secondary mb-3">
+                Choose Your Race
+              </h3>
+              <ul class="space-y-2 text-text-muted">
+                <li>• <strong>Human</strong> - Versatile and adaptable</li>
+                <li>• <strong>Dwarf</strong> - Tough and resilient</li>
+                <li>• <strong>Elf</strong> - Graceful and magical</li>
+                <li>• <strong>Halfling</strong> - Lucky and nimble</li>
+              </ul>
+            </div>
+
+            <div class="bg-accent rounded-lg p-6">
+              <h3 class="text-xl font-semibold text-secondary mb-3">
+                Select Your Class
+              </h3>
+              <ul class="space-y-2 text-text-muted">
+                <li>• <strong>Warrior</strong> - Master of melee combat</li>
+                <li>• <strong>Rogue</strong> - Stealthy and precise</li>
+                <li>• <strong>Mage</strong> - Wielder of arcane power</li>
+                <li>• <strong>Cleric</strong> - Divine healer and protector</li>
+                <li>• <strong>Ranger</strong> - Deadly with bow and blade</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="mt-8 p-4 bg-primary/10 border border-primary rounded-lg">
+            <p class="text-sm text-text-muted">
+              <strong class="text-secondary">Note:</strong> This game features 
+              turn-based combat with WFRP-inspired stats, procedurally generated 
+              dungeons, and skill-based progression. Your choices matter!
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</BaseLayout>
